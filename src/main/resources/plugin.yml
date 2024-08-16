@@ -5,6 +5,10 @@ author: ${author}
 api-version: 1.17
 load: POSTWORLD
 
+permissions:
+  safestart.handler.prevent-join-bypass:
+    description: Will not kick the player if they have this permission.
+
 commands:
   safestart:
     description: Safe Start admin command

@@ -99,7 +99,7 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
                 }
             }
             case "allowjoin" -> {
-                BuiltinHandlers.PreventJoinListener.unregister(plugin);
+                BuiltinHandlers.PreventJoinListener.unregister();
                 MessageHelper.sendSuccess(sender, "Join prevention is now disabled.");
             }
             case "list", "checks" -> {

@@ -28,4 +28,9 @@ public class RequiredPlugin {
     public static @NotNull RequiredPlugin ofPlugin(@NotNull JavaPlugin plugin, @NotNull Key handler) {
         return new RequiredPlugin(plugin.getName(), handler);
     }
+
+    @Override
+    public String toString() {
+        return getPluginId();
+    }
 }

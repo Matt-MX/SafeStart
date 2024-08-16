@@ -59,13 +59,13 @@ public class SafeStart extends JavaPlugin {
     public void loadRequiredPlugins() {
         required = Objects.requireNonNull(getConfig().getList("plugins", Collections.emptyList()), "Missing plugins list in config.yml")
             .stream()
-            .filter(ConfigurationSection.class::isInstance)
-            .map(section -> (ConfigurationSection) section)
+            .filter(LinkedHashMap.class::isInstance)
+            .map(section -> (LinkedHashMap<String, ?>) section)
             .map(section -> {
-                String name = section.getString("name");
+                String name = section.get("name").toString();
                 Objects.requireNonNull(name, "Missing name entry for a plugin");
 
-                String keyString = section.getString("handle");
+                String keyString = section.get("handle").toString();
                 Objects.requireNonNull(keyString, String.format("Missing a handle key for plugin %s", name));
 
                 Key key;

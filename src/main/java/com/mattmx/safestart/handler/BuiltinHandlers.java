@@ -1,14 +1,17 @@
 package com.mattmx.safestart.handler;
 
+import com.mattmx.safestart.MessageHelper;
 import com.mattmx.safestart.SafeStart;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class BuiltinHandlers {
@@ -28,23 +31,31 @@ public class BuiltinHandlers {
             .getLogger()
             .warning(String.format("Required plugin was not available! Ensure %s is installed before running /safestart allowjoin.", plugin));
 
-        PreventJoinListener.register(SafeStart.getInstance());
+        Component kickMessage = Component.text(
+            "SafeStart prevented you from logging in.\n\nIf you believe this is an error please contact an\nadministrator for this server."
+        ).color(NamedTextColor.RED);
 
-        Bukkit.getServer().shutdown();
+        Bukkit.getOnlinePlayers()
+                .stream().filter((player -> !player.hasPermission("safestart.handler.prevent-join-bypass")))
+                .forEach((player -> player.kick(kickMessage)));
+
+        PreventJoinListener.register(SafeStart.getInstance(), kickMessage);
     };
 
     public static class PreventJoinListener implements Listener {
         private static PreventJoinListener instance = null;
 
-        public static void register(@NotNull SafeStart plugin) {
+        private final Component kickMessage;
+
+        public static void register(@NotNull SafeStart plugin, @NotNull Component kickMessage) {
             if (instance != null) {
                 return;
             }
-            instance = new PreventJoinListener();
+            instance = new PreventJoinListener(kickMessage);
             Bukkit.getPluginManager().registerEvents(instance, plugin);
         }
 
-        public static void unregister(@NotNull SafeStart plugin) {
+        public static void unregister() {
             if (instance == null) {
                 return;
             }
@@ -53,12 +64,30 @@ public class BuiltinHandlers {
             instance = null;
         }
 
+        public PreventJoinListener(@NotNull Component kickMessage) {
+            this.kickMessage = kickMessage;
+        }
+
         @EventHandler(ignoreCancelled = true)
-        public void onJoin(AsyncPlayerPreLoginEvent event) {
+        public void onPrePlayerLogin(AsyncPlayerPreLoginEvent event) {
+
+            boolean isOperator = Bukkit.getOperators()
+                .stream()
+                .anyMatch((offlinePlayer) -> offlinePlayer.getUniqueId() == event.getUniqueId());
+
+            if (isOperator) {
+                return;
+            }
+
             event.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-            event.kickMessage(Component.text(
-                "SafeStart prevented you from logging in.\n\nIf you believe this is an error please contact an\nadministrator for this server."
-            ).color(NamedTextColor.RED));
+            event.kickMessage(kickMessage);
+        }
+
+        @EventHandler
+        public void onJoin(PlayerJoinEvent event) {
+            if (event.getPlayer().hasPermission("safestart.handler.prevent-join-bypass")) {
+                MessageHelper.sendError(event.getPlayer(), "SafeStart join prevention is active but you bypassed it.");
+            }
         }
     }
 
