@@ -3,6 +3,7 @@ package com.mattmx.safestart.command;
 import com.mattmx.safestart.MessageHelper;
 import com.mattmx.safestart.RequiredPlugin;
 import com.mattmx.safestart.SafeStart;
+import com.mattmx.safestart.handler.BuiltinHandlers;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -90,11 +91,16 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
             case "reload" -> {
                 try {
                     plugin.reloadConfig();
+                    plugin.loadRequiredPlugins();
                     MessageHelper.sendSuccess(sender, "Reloaded configuration successfully!");
                 } catch (Exception error) {
                     MessageHelper.sendError(sender, "There was an error reloading the config! Check console for further details.");
                     error.printStackTrace();
                 }
+            }
+            case "allowjoin" -> {
+                BuiltinHandlers.PreventJoinListener.unregister(plugin);
+                MessageHelper.sendSuccess(sender, "Join prevention is now disabled.");
             }
             case "list", "checks" -> {
                 boolean runWithHandlersCallback = Arrays.asList(args).contains("--runHandlers");
@@ -127,7 +133,7 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
 
         switch (args.length) {
             case 0 -> {
-                return tabCompleteHelper(lastArg, "list", "checks", "add", "del", "reload");
+                return tabCompleteHelper(lastArg, "list", "checks", "add", "del", "reload", "allowjoin");
             }
             case 1 -> {
                 switch (args[0].toLowerCase()) {

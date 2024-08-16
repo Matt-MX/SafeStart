@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class SafeStart extends JavaPlugin {
+    private static SafeStart instance;
     private @Nullable PluginUnavailableHandler fallback;
     private @Nullable Key fallbackKey;
     private List<RequiredPlugin> required;
@@ -19,6 +20,7 @@ public class SafeStart extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        instance = this;
         saveDefaultConfig();
 
         String fallbackKeyString = getConfig().getString("fallback-handle");
@@ -30,6 +32,8 @@ public class SafeStart extends JavaPlugin {
         }
 
         this.fallback = fallbackHandler.orElse(null);
+
+        loadRequiredPlugins();
     }
 
     public void loadRequiredPlugins() {
@@ -97,5 +101,9 @@ public class SafeStart extends JavaPlugin {
     public void writeConfigChanges() {
         getConfig().set("plugins", required);
         saveConfig();
+    }
+
+    public static SafeStart getInstance() {
+        return instance;
     }
 }

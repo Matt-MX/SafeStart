@@ -12,6 +12,9 @@ public class HandlerRegistry {
 
     public HandlerRegistry() {
         this.registered = new ConcurrentHashMap<>();
+
+        this.registered.put(BuiltinHandlers.SHUTDOWN_KEY, BuiltinHandlers.SHUTDOWN_HANDLE);
+        this.registered.put(BuiltinHandlers.PREVENT_JOIN_KEY, BuiltinHandlers.PREVENT_JOIN_HANDLE);
     }
 
     public void register(@NotNull Key key, @NotNull PluginUnavailableHandler handler) {
