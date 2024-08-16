@@ -1,5 +1,6 @@
 package com.mattmx.safestart;
 
+import com.mattmx.safestart.command.SafeStartCommand;
 import com.mattmx.safestart.handler.HandlerRegistry;
 import com.mattmx.safestart.handler.PluginUnavailableHandler;
 import net.kyori.adventure.key.Key;
@@ -34,6 +35,24 @@ public class SafeStart extends JavaPlugin {
         this.fallback = fallbackHandler.orElse(null);
 
         loadRequiredPlugins();
+
+        Objects.requireNonNull(Bukkit.getPluginCommand("safestart")).setExecutor(new SafeStartCommand(this));
+
+        // Schedule a task for the first server tick.
+        Bukkit.getScheduler()
+            .runTask(this, () -> {
+                List<RequiredPlugin> unavailable = performChecks(true);
+
+                if (unavailable.isEmpty()) {
+                    MessageHelper.sendSuccess(Bukkit.getConsoleSender(), "All plugins are available.");
+                } else {
+                    MessageHelper.sendError(Bukkit.getConsoleSender(), String.format("%d Plugins unavailable", unavailable.size()));
+
+                    for (RequiredPlugin plugin : unavailable) {
+                        MessageHelper.sendError(Bukkit.getConsoleSender(), String.format(" - %s (%s)", plugin.getPluginId(), plugin.getHandlerKey()));
+                    }
+                }
+            });
     }
 
     public void loadRequiredPlugins() {

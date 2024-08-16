@@ -4,3 +4,8 @@ version: ${version}
 author: ${author}
 api-version: 1.17
 load: POSTWORLD
+
+commands:
+  safestart:
+    description: Safe Start admin command
+    permission: safestart.admin

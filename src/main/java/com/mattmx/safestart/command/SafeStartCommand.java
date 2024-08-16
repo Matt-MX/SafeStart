@@ -133,11 +133,11 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
 
         switch (args.length) {
             case 0 -> {
-                return tabCompleteHelper(lastArg, "list", "checks", "add", "del", "reload", "allowjoin");
+                return tabCompleteHelper(lastArg, "list", "checks", "set", "del", "reload", "allowjoin");
             }
             case 1 -> {
                 switch (args[0].toLowerCase()) {
-                    case "add" -> {
+                    case "set" -> {
                         return tabCompleteHelper(lastArg, Arrays.stream(
                                 Bukkit.getPluginManager().getPlugins()
                             ).map(Plugin::getName)
@@ -155,7 +155,7 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
                 }
             }
             case 2 -> {
-                if (args[0].equalsIgnoreCase("add")) {
+                if (args[0].equalsIgnoreCase("set")) {
                     return tabCompleteHelper(lastArg, plugin.getHandlers()
                         .getAll()
                         .keySet()
