@@ -1,7 +1,8 @@
-fallback-handle: 'safestart:shutdown'
-
+fallback-handle: safestart:shutdown
 plugins:
-  - name: KtGUI
-    handle: 'safestart:shutdown'
-  - name: WorldGuard
-    handle: 'safestart:prevent_join'
+  - ==: com.mattmx.safestart.RequiredPlugin
+    name: ViaBackwards
+    handle: safestart:prevent_join
+  - ==: com.mattmx.safestart.RequiredPlugin
+    name: ViaVersion
+    handle: safestart:prevent_join

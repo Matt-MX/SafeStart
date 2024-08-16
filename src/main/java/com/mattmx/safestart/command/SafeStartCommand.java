@@ -116,7 +116,9 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
                         MessageHelper.sendError(sender, String.format(" - %s (%s)", plugin.getPluginId(), plugin.getHandlerKey()));
                     }
 
-                    MessageHelper.sendInfo(sender, "Run with --runHandlers to execute handler callbacks.");
+                    if (!runWithHandlersCallback) {
+                        MessageHelper.sendInfo(sender, "Run with --runHandlers to execute handler callbacks.");
+                    }
                 }
             }
             case "debug" -> {

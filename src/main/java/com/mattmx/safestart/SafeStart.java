@@ -6,6 +6,7 @@ import com.mattmx.safestart.handler.PluginUnavailableHandler;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -17,13 +18,14 @@ public class SafeStart extends JavaPlugin {
     private static SafeStart instance;
     private @Nullable PluginUnavailableHandler fallback;
     private @Nullable Key fallbackKey;
-    private List<RequiredPlugin> required;
+    private ArrayList<RequiredPlugin> required;
     private final HandlerRegistry handlers = new HandlerRegistry();
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+        ConfigurationSerialization.registerClass(RequiredPlugin.class, "plugin");
 
         String fallbackKeyString = getConfig().getString("fallback-handle");
         fallbackKey = Key.key(fallbackKeyString);
@@ -57,30 +59,13 @@ public class SafeStart extends JavaPlugin {
     }
 
     public void loadRequiredPlugins() {
-        required = Objects.requireNonNull(getConfig().getList("plugins", Collections.emptyList()), "Missing plugins list in config.yml")
-            .stream()
-            .filter(LinkedHashMap.class::isInstance)
-            .map(section -> (LinkedHashMap<String, ?>) section)
-            .map(section -> {
-                String name = section.get("name").toString();
-                Objects.requireNonNull(name, "Missing name entry for a plugin");
-
-                String keyString = section.get("handle").toString();
-                Objects.requireNonNull(keyString, String.format("Missing a handle key for plugin %s", name));
-
-                Key key;
-                if (!Key.parseable(keyString)) {
-                    getLogger().warning(String.format("Can't parse key %s for plugin %s", keyString, name));
-                    key = fallbackKey;
-                } else {
-                    key = Key.key(keyString);
-                }
-
-                Objects.requireNonNull(key, String.format("Handle key was null for %s. This might be because the fallback handle is also invalid.", name));
-
-                return new RequiredPlugin(name, key);
-            })
-            .toList();
+        required = new ArrayList<>(
+            Objects.requireNonNull(getConfig().getList("plugins", Collections.emptyList()), "Missing plugins list in config.yml")
+                .stream()
+                .filter(RequiredPlugin.class::isInstance)
+                .map(o -> (RequiredPlugin) o)
+                .toList()
+        );
     }
 
     public @NotNull List<RequiredPlugin> performChecks(boolean runHandlers) {
@@ -125,5 +110,9 @@ public class SafeStart extends JavaPlugin {
 
     public static SafeStart getInstance() {
         return instance;
+    }
+
+    public Key getFallbackKey() {
+        return fallbackKey;
     }
 }

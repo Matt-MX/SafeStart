@@ -36,8 +36,8 @@ public class BuiltinHandlers {
         ).color(NamedTextColor.RED);
 
         Bukkit.getOnlinePlayers()
-                .stream().filter((player -> !player.hasPermission("safestart.handler.prevent-join-bypass")))
-                .forEach((player -> player.kick(kickMessage)));
+            .stream().filter((player -> !player.hasPermission("safestart.handler.prevent-join-bypass")))
+            .forEach((player -> player.kick(kickMessage)));
 
         PreventJoinListener.register(SafeStart.getInstance(), kickMessage);
     };
@@ -73,7 +73,11 @@ public class BuiltinHandlers {
 
             boolean isOperator = Bukkit.getOperators()
                 .stream()
-                .anyMatch((offlinePlayer) -> offlinePlayer.getUniqueId() == event.getUniqueId());
+                .anyMatch((offlinePlayer) ->
+                    offlinePlayer.getUniqueId()
+                        .toString()
+                        .equals(event.getUniqueId().toString())
+                );
 
             if (isOperator) {
                 return;
