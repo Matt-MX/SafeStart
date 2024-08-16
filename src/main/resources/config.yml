@@ -1,0 +1,7 @@
+fallback-handle: 'safestart:shutdown'
+
+plugins:
+  - name: KtGUI
+    handle: 'safestart:shutdown'
+  - name: WorldGuard
+    handle: 'safestart:prevent_join'

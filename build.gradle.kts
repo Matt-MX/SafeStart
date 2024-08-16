@@ -4,8 +4,6 @@ import java.io.InputStreamReader
 plugins {
     alias(libs.plugins.runPaper)
     alias(libs.plugins.paperweight) apply true
-    alias(libs.plugins.kotlinJvm) apply true
-    alias(libs.plugins.shadow) apply true
 
     `maven-publish`
 }
@@ -19,24 +17,13 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://maven.pvphub.me/releases")
-    maven("https://repo.dmulloy2.net/repository/public/")
-    maven("https://jitpack.io")
-    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
     paperweight.paperDevBundle(libs.versions.paperApi.get())
-
-    compileOnly(libs.ktgui)
-    compileOnly(libs.placeholder.api)
 }
 
 tasks {
-    base {
-        archivesName = id
-    }
-
     withType<ProcessResources> {
         val props = mapOf(
             "name" to pluginName,
@@ -51,10 +38,6 @@ tasks {
         filesMatching("plugin.yml") {
             expand(props)
         }
-    }
-
-    shadowJar {
-        mergeServiceFiles()
     }
 
     test {
@@ -72,7 +55,6 @@ tasks {
         downloadPlugins {
             hangar("ViaVersion", "5.0.1")
             hangar("ViaBackwards", "5.0.1")
-            hangar("PlaceholderAPI", "2.11.6")
         }
     }
 }
@@ -83,7 +65,7 @@ java {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 sourceSets["main"].resources.srcDir("src/resources/")
