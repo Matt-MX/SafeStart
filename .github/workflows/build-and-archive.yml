@@ -24,7 +24,11 @@ jobs:
         run: chmod +x ./gradlew
       - name: Run build with Gradle Wrapper
         run: ./gradlew build
-      - uses: actions/upload-artifact@v3
+      - name: Create release
+        uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          name: build-outputs
-          path: build/libs/*.jar
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: build/libs/*.jar
