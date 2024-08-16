@@ -6,6 +6,7 @@ import com.mattmx.safestart.handler.PluginUnavailableHandler;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,9 +86,9 @@ public class SafeStart extends JavaPlugin {
     public @NotNull List<RequiredPlugin> performChecks(boolean runHandlers) {
         ArrayList<RequiredPlugin> invalid = new ArrayList<>();
         for (RequiredPlugin plugin : this.required) {
-            boolean exists = Bukkit.getPluginManager().getPlugin(plugin.getPluginId()) != null;
+            @Nullable Plugin pluginInstance = Bukkit.getPluginManager().getPlugin(plugin.getPluginId());
 
-            if (!exists) {
+            if (pluginInstance == null || !pluginInstance.isEnabled()) {
                 Optional<PluginUnavailableHandler> handler = handlers.getHandler(plugin.getHandlerKey());
 
                 if (runHandlers) {

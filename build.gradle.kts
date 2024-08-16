@@ -2,10 +2,9 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 plugins {
+    id("java")
     alias(libs.plugins.runPaper)
     alias(libs.plugins.paperweight) apply true
-
-    `maven-publish`
 }
 
 runPaper.folia.registerTask()
@@ -13,14 +12,13 @@ runPaper.folia.registerTask()
 val id = findProperty("id").toString()
 val pluginName = findProperty("plugin_name")
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
-}
-
 dependencies {
     paperweight.paperDevBundle(libs.versions.paperApi.get())
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 tasks {
@@ -40,12 +38,12 @@ tasks {
         }
     }
 
-    test {
-        useJUnitPlatform()
-    }
-
     assemble {
         dependsOn("reobfJar")
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     runServer {
@@ -59,37 +57,7 @@ tasks {
     }
 }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
-kotlin {
-    jvmToolchain(21)
-}
-
 sourceSets["main"].resources.srcDir("src/resources/")
-
-publishing {
-    repositories {
-        maven {
-            name = "pvphub-releases"
-            url = uri("https://maven.pvphub.me/releases")
-            credentials {
-                username = System.getenv("PVPHUB_MAVEN_USERNAME")
-                password = System.getenv("PVPHUB_MAVEN_SECRET")
-            }
-        }
-    }
-    publications {
-        create<MavenPublication>(id) {
-            from(components["java"])
-            groupId = group.toString()
-            artifactId = id
-            version = rootProject.version.toString()
-        }
-    }
-}
 
 fun getCurrentCommitHash(): String {
     val process = ProcessBuilder("git", "rev-parse", "HEAD").start()

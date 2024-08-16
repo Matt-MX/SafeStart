@@ -119,6 +119,12 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
                     MessageHelper.sendInfo(sender, "Run with --runHandlers to execute handler callbacks.");
                 }
             }
+            case "debug" -> {
+                MessageHelper.sendInfo(sender, "All required plugins");
+                for (RequiredPlugin plugin : plugin.getRequired()) {
+                    MessageHelper.sendInfo(sender, String.format(" - %s (%s)", plugin.getPluginId(), plugin.getHandlerKey()));
+                }
+            }
             default -> {
                 MessageHelper.sendError(sender, "Unrecognized sub-command.");
             }
@@ -132,36 +138,36 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
         String lastArg = args.length == 0 ? "" : args[args.length - 1];
 
         switch (args.length) {
-            case 0 -> {
-                return tabCompleteHelper(lastArg, "list", "checks", "set", "del", "reload", "allowjoin");
+            case 0, 1 -> {
+                return tabCompleteHelper(lastArg, "list", "checks", "set", "del", "reload", "allowjoin", "debug");
             }
-            case 1 -> {
+            case 2 -> {
                 switch (args[0].toLowerCase()) {
                     case "set" -> {
                         return tabCompleteHelper(lastArg, Arrays.stream(
                                 Bukkit.getPluginManager().getPlugins()
                             ).map(Plugin::getName)
-                            .collect(Collectors.joining()));
+                            .toArray(String[]::new));
                     }
                     case "del" -> {
                         return tabCompleteHelper(lastArg, plugin.getRequired()
                             .stream()
                             .map(RequiredPlugin::getPluginId)
-                            .collect(Collectors.joining()));
+                            .toArray(String[]::new));
                     }
                     case "list", "checks" -> {
                         return tabCompleteHelper(lastArg, "--runHandlers");
                     }
                 }
             }
-            case 2 -> {
+            case 3 -> {
                 if (args[0].equalsIgnoreCase("set")) {
                     return tabCompleteHelper(lastArg, plugin.getHandlers()
                         .getAll()
                         .keySet()
                         .stream()
                         .map(Key::toString)
-                        .collect(Collectors.joining())
+                        .toArray(String[]::new)
                     );
                 }
             }
