@@ -1,11 +1,12 @@
 package com.mattmx.safestart;
 
 import com.mattmx.safestart.command.SafeStartCommand;
+import com.mattmx.safestart.discord.SafeStartWebhookFeature;
+import com.mattmx.safestart.event.PluginsUnavailableEvent;
 import com.mattmx.safestart.handler.HandlerRegistry;
 import com.mattmx.safestart.handler.PluginUnavailableHandler;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,6 +40,7 @@ public class SafeStart extends JavaPlugin {
 
         loadRequiredPlugins();
 
+        Bukkit.getPluginManager().registerEvents(new SafeStartWebhookFeature(this), this);
         Objects.requireNonNull(Bukkit.getPluginCommand("safestart")).setExecutor(new SafeStartCommand(this));
 
         // Schedule a task for the first server tick.
@@ -86,6 +88,9 @@ public class SafeStart extends JavaPlugin {
                 invalid.add(plugin);
             }
         }
+
+        Bukkit.getPluginManager().callEvent(new PluginsUnavailableEvent(invalid.stream().toList()));
+
         return invalid;
     }
 

@@ -1,4 +1,11 @@
 fallback-handle: safestart:shutdown
+
+discord:
+  enabled: false
+  url: "WEBHOOK-URL-HERE"
+  contents: "<@312693889582759938>"
+  title: ":warning: SafeSpec (MyServerName)"
+
 plugins:
   - ==: com.mattmx.safestart.RequiredPlugin
     name: ViaBackwards
