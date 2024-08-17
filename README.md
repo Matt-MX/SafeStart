@@ -27,6 +27,26 @@ You can add requirements with the following commands or via the config.
   - `list` and `checks`
     > Get a list of what plugins are not available.
     > Run this with the `--runHandlers` flag to execute all requirement handlers (disabled by default).
+  - `debug`
+    > A list of all required servers and their respective handlers. (This will probably be changed to `list`)
+
+### ❔ Further Configuration
+
+The plugin comes built-in with a **discord webhook** feature, which is disabled by default.
+
+To enable, navigate to `./plugins/SafeStart/config.yml`, set `discord.enabled` to `true`, and paste in your webhook URL.
+
+`default`
+```yml
+discord:
+  enabled: false
+  url: "WEBHOOK-URL-HERE"
+  # Useful for pinging roles/members for outages
+  # This placeholder pings my discord account.
+  contents: "<@312693889582759938>"
+  # To quickly help identify the server that the outage is on.
+  title: ":warning: SafeSpec (MyServerName)"
+```
 
 ### ⌨️ Developer Usage
 
