@@ -121,7 +121,7 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
                     }
                 }
             }
-            case "debug" -> {
+            case "list" -> {
                 MessageHelper.sendInfo(sender, "All required plugins");
                 for (RequiredPlugin plugin : plugin.getRequired()) {
                     MessageHelper.sendInfo(sender, String.format(" - %s (%s)", plugin.getPluginId(), plugin.getHandlerKey()));
