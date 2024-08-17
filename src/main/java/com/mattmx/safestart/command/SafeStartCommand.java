@@ -102,7 +102,7 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
                 BuiltinHandlers.PreventJoinListener.unregister();
                 MessageHelper.sendSuccess(sender, "Join prevention is now disabled.");
             }
-            case "list", "checks" -> {
+            case "test" -> {
                 boolean runWithHandlersCallback = Arrays.asList(args).contains("--runHandlers");
                 List<RequiredPlugin> unavailable = plugin.performChecks(runWithHandlersCallback);
 
@@ -141,7 +141,7 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
 
         switch (args.length) {
             case 0, 1 -> {
-                return tabCompleteHelper(lastArg, "list", "checks", "set", "del", "reload", "allowjoin", "debug");
+                return tabCompleteHelper(lastArg, "list", "test", "set", "del", "reload", "allowjoin");
             }
             case 2 -> {
                 switch (args[0].toLowerCase()) {
@@ -157,7 +157,7 @@ public class SafeStartCommand implements CommandExecutor, TabCompleter {
                             .map(RequiredPlugin::getPluginId)
                             .toArray(String[]::new));
                     }
-                    case "list", "checks" -> {
+                    case "test" -> {
                         return tabCompleteHelper(lastArg, "--runHandlers");
                     }
                 }
