@@ -89,7 +89,9 @@ public class SafeStart extends JavaPlugin {
             }
         }
 
-        Bukkit.getPluginManager().callEvent(new PluginsUnavailableEvent(invalid.stream().toList()));
+        if (!invalid.isEmpty()) {
+            Bukkit.getPluginManager().callEvent(new PluginsUnavailableEvent(invalid.stream().toList()));
+        }
 
         return invalid;
     }
