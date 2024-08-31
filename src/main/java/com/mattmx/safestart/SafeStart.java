@@ -5,6 +5,9 @@ import com.mattmx.safestart.discord.SafeStartWebhookFeature;
 import com.mattmx.safestart.event.PluginsUnavailableEvent;
 import com.mattmx.safestart.handler.HandlerRegistry;
 import com.mattmx.safestart.handler.PluginUnavailableHandler;
+import com.mattmx.safestart.hooks.SafeStartHooksRegistry;
+import com.mattmx.safestart.hooks.impl.WorldGuardHook;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -21,6 +24,7 @@ public class SafeStart extends JavaPlugin {
     private @Nullable Key fallbackKey;
     private ArrayList<RequiredPlugin> required;
     private final HandlerRegistry handlers = new HandlerRegistry();
+    private final SafeStartHooksRegistry hooks = new SafeStartHooksRegistry();
 
     @Override
     public void onEnable() {
@@ -41,23 +45,14 @@ public class SafeStart extends JavaPlugin {
         loadRequiredPlugins();
 
         Bukkit.getPluginManager().registerEvents(new SafeStartWebhookFeature(this), this);
+        Bukkit.getPluginManager().registerEvents(new PluginDisableListener(this), this);
+
+        hooks.register(new WorldGuardHook());
+
         Objects.requireNonNull(Bukkit.getPluginCommand("safestart")).setExecutor(new SafeStartCommand(this));
 
         // Schedule a task for the first server tick.
-        Bukkit.getScheduler()
-            .runTask(this, () -> {
-                List<RequiredPlugin> unavailable = performChecks(true);
-
-                if (unavailable.isEmpty()) {
-                    MessageHelper.sendSuccess(Bukkit.getConsoleSender(), "All plugins are available.");
-                } else {
-                    MessageHelper.sendError(Bukkit.getConsoleSender(), String.format("%d Plugins unavailable", unavailable.size()));
-
-                    for (RequiredPlugin plugin : unavailable) {
-                        MessageHelper.sendError(Bukkit.getConsoleSender(), String.format(" - %s (%s)", plugin.getPluginId(), plugin.getHandlerKey()));
-                    }
-                }
-            });
+        Bukkit.getScheduler().runTask(this, () -> performChecksWithCallback(Bukkit.getConsoleSender(), true));
     }
 
     public void loadRequiredPlugins() {
@@ -68,6 +63,22 @@ public class SafeStart extends JavaPlugin {
                 .map(o -> (RequiredPlugin) o)
                 .toList()
         );
+    }
+
+    public @NotNull List<RequiredPlugin> performChecksWithCallback(Audience sender, boolean runHandlers) {
+        List<RequiredPlugin> unavailable = performChecks(runHandlers);
+
+        if (unavailable.isEmpty()) {
+            MessageHelper.sendSuccess(sender, "All plugins are available.");
+        } else {
+            MessageHelper.sendError(sender, String.format("%d Plugins unavailable", unavailable.size()));
+
+            for (RequiredPlugin plugin : unavailable) {
+                MessageHelper.sendError(sender, String.format(" - %s (%s)", plugin.getPluginId(), plugin.getHandlerKey()));
+            }
+        }
+
+        return unavailable;
     }
 
     public @NotNull List<RequiredPlugin> performChecks(boolean runHandlers) {
@@ -119,7 +130,11 @@ public class SafeStart extends JavaPlugin {
         return instance;
     }
 
-    public Key getFallbackKey() {
+    public @Nullable Key getFallbackKey() {
         return fallbackKey;
+    }
+
+    public @NotNull SafeStartHooksRegistry getHooksRegistry() {
+        return this.hooks;
     }
 }
